@@ -8,7 +8,6 @@ import os
 import glob
 
 
-#file_input = "ufo_report_2009.pdf" # NOTE parsing all PDF files in folder now
 folder_input = "../../data_source/uk_gov/"
 file_output = "../../data_transformed_intermediate/uk_gov_pdf_all.csv"
 #standard_cols = ['Date', 'Time', 'Town', 'Area', 'Occupation', 'Description']
@@ -24,14 +23,13 @@ def remove_line_returns(text):
 def format_date(date_str):
   return to_datetime(date_str, format='%d-%b-%y')
 
-
-# handles also rare period entry formats like "29 Jun-2 Jul 09" . In that case we take the first datefrom datetime import datetime
+# handles input date strings in the form of "22-Mar-09", "Mar-09", "03-09", "29 Jun-2 Jul 09"
+# handles also rare period entry formats like "29 Jun-2 Jul 09" . In that case we take the first date from datetime import datetime
 def parse_date(date_string):
     # If the date_string is "No Firm Date" or "N/A", return the string itself
     if date_string in ["No Firm Date", "N/A"]:
-        return date_string
+        return None
 
-    # Define the formats that the date could be in
     formats = ['%d-%b-%y', '%b-%y', '%m-%y', '%d-%m-%y']
 
     for fmt in formats:
@@ -47,13 +45,10 @@ def parse_date(date_string):
         except ValueError:
             continue
 
-    # If all attempts to parse the date string fail, return None
     return None
 
 
 
-
-# Get all pdf files in current directory
 pdf_files = glob.glob(os.path.join(folder_input, "*.pdf"))
 # sort pdf_files by last 4 chars in file name, NOTE make sure all files end with 4 digit year ( as they currently are in the source folder )
 pdf_files.sort(key=lambda x: x[-8:])
@@ -61,7 +56,6 @@ print(f"Found {len(pdf_files)} PDF files")
 
 # Initialize an empty DataFrame
 all_tables = pd.DataFrame()
-
 
 for pdf_file in pdf_files:
     print(f"Opening PDF with tables: `{pdf_file}`")
@@ -73,8 +67,6 @@ for pdf_file in pdf_files:
         for page in pdf.pages:
             # Extract tables from the page
             tables = page.extract_tables()
-
-            # Loop through the tables
             for table in tables:
                 # Convert the table to a DataFrame
                 df = pd.DataFrame(table[1:], columns=table[0]) # CAREFUL : this was working, but we try to include the column heads in the first data frame
@@ -83,7 +75,6 @@ for pdf_file in pdf_files:
                     columns_list = df.columns.tolist()
 
                 index_list  = df.columns.tolist()
-
                  # Reset the column names of df
                 df.columns = range(df.shape[1])
 
@@ -102,7 +93,6 @@ for pdf_file in pdf_files:
                 print(f"Processed Table fragment {df_index+1}")
 
                 df_index += 1
-
 
         # Append to master dataframe
         all_tables = pd.concat([all_tables, df])
