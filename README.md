@@ -21,7 +21,7 @@ Folder containing all parser-, transformation- and scraping-scripts
 ## /uk_gov
 
 ### uk_gov_pdf2csv.py
-script to parse the pdf files from the UK government and transform them into a csv file. The source files being parsed are located in the folder data_source/uk_gov ( see data_source >> uk_gov above )
+script to parse the pdf files from the UK government and transform them into a csv file. Some first data cleaning and date transformation to ISO format for better further data processing is applied. The source files being parsed are located in the folder data_source/uk_gov ( see data_source >> uk_gov above )
 
 Install dependencies
 ```bash
